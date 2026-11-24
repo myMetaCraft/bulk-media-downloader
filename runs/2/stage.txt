@@ -1,0 +1,68 @@
+download https://www.python.org/ftp/python/3.13.17/python-3.13.17-embed-amd64.zip
+Collecting yt-dlp[curl-cffi,default] (from -r D:\a\bulk-media-downloader\bulk-media-downloader\requirements.txt (line 2))
+  Downloading yt_dlp-2026.11.23-py3-none-any.whl.metadata (183 kB)
+Collecting curl-cffi!=0.6.*,!=0.7.*,!=0.8.*,!=0.9.*,<0.18,>=0.5.10 (from yt-dlp[curl-cffi,default]->-r D:\a\bulk-media-downloader\bulk-media-downloader\requirements.txt (line 2))
+  Downloading curl_cffi-0.17.0-cp310-abi3-win_amd64.whl.metadata (19 kB)
+Collecting brotli (from yt-dlp[curl-cffi,default]->-r D:\a\bulk-media-downloader\bulk-media-downloader\requirements.txt (line 2))
+  Downloading brotli-1.2.1-cp313-cp313-win_amd64.whl.metadata (6.3 kB)
+Collecting certifi>=2026.10.19 (from yt-dlp[curl-cffi,default]->-r D:\a\bulk-media-downloader\bulk-media-downloader\requirements.txt (line 2))
+  Downloading certifi-2026.11.20-py3-none-any.whl.metadata (2.5 kB)
+Collecting mutagen (from yt-dlp[curl-cffi,default]->-r D:\a\bulk-media-downloader\bulk-media-downloader\requirements.txt (line 2))
+  Downloading mutagen-1.48.1-py3-none-any.whl.metadata (1.8 kB)
+Collecting pycryptodomex (from yt-dlp[curl-cffi,default]->-r D:\a\bulk-media-downloader\bulk-media-downloader\requirements.txt (line 2))
+  Downloading pycryptodomex-3.24.2-cp37-abi3-win_amd64.whl.metadata (3.5 kB)
+Collecting requests<3,>=2.32.2 (from yt-dlp[curl-cffi,default]->-r D:\a\bulk-media-downloader\bulk-media-downloader\requirements.txt (line 2))
+  Downloading requests-2.34.2-py3-none-any.whl.metadata (4.8 kB)
+Collecting urllib3<3,>=2.0.2 (from yt-dlp[curl-cffi,default]->-r D:\a\bulk-media-downloader\bulk-media-downloader\requirements.txt (line 2))
+  Downloading urllib3-2.8.0-py3-none-any.whl.metadata (7.4 kB)
+Collecting websockets>=13.0 (from yt-dlp[curl-cffi,default]->-r D:\a\bulk-media-downloader\bulk-media-downloader\requirements.txt (line 2))
+  Downloading websockets-17.4-cp313-cp313-win_amd64.whl.metadata (6.5 kB)
+Collecting yt-dlp-ejs==0.8.0 (from yt-dlp[curl-cffi,default]->-r D:\a\bulk-media-downloader\bulk-media-downloader\requirements.txt (line 2))
+  Downloading yt_dlp_ejs-0.8.0-py3-none-any.whl.metadata (3.5 kB)
+Collecting cffi>=2.1.1 (from curl-cffi!=0.6.*,!=0.7.*,!=0.8.*,!=0.9.*,<0.18,>=0.5.10->yt-dlp[curl-cffi,default]->-r D:\a\bulk-media-downloader\bulk-media-downloader\requirements.txt (line 2))
+  Downloading cffi-2.1.1-cp313-cp313-win_amd64.whl.metadata (2.6 kB)
+Collecting charset_normalizer<4,>=2 (from requests<3,>=2.32.2->yt-dlp[curl-cffi,default]->-r D:\a\bulk-media-downloader\bulk-media-downloader\requirements.txt (line 2))
+  Downloading charset_normalizer-3.5.3-cp313-cp313-win_amd64.whl.metadata (44 kB)
+Collecting idna<4,>=2.5 (from requests<3,>=2.32.2->yt-dlp[curl-cffi,default]->-r D:\a\bulk-media-downloader\bulk-media-downloader\requirements.txt (line 2))
+  Downloading idna-3.20-py3-none-any.whl.metadata (7.2 kB)
+Collecting pycparser (from cffi>=2.1.1->curl-cffi!=0.6.*,!=0.7.*,!=0.8.*,!=0.9.*,<0.18,>=0.5.10->yt-dlp[curl-cffi,default]->-r D:\a\bulk-media-downloader\bulk-media-downloader\requirements.txt (line 2))
+  Downloading pycparser-3.12-py3-none-any.whl.metadata (9.7 kB)
+Downloading yt_dlp-2026.11.23-py3-none-any.whl (3.2 MB)
+   ---------------------------------------- 3.2/3.2 MB 34.6 MB/s  0:00:00
+Downloading yt_dlp_ejs-0.8.0-py3-none-any.whl (53 kB)
+Downloading curl_cffi-0.17.0-cp310-abi3-win_amd64.whl (2.1 MB)
+   ---------------------------------------- 2.1/2.1 MB 48.8 MB/s  0:00:00
+Downloading requests-2.34.2-py3-none-any.whl (73 kB)
+Downloading charset_normalizer-3.5.3-cp313-cp313-win_amd64.whl (213 kB)
+Downloading idna-3.20-py3-none-any.whl (69 kB)
+Downloading urllib3-2.8.0-py3-none-any.whl (135 kB)
+Downloading certifi-2026.11.20-py3-none-any.whl (127 kB)
+Downloading cffi-2.1.1-cp313-cp313-win_amd64.whl (185 kB)
+Downloading websockets-17.4-cp313-cp313-win_amd64.whl (219 kB)
+Downloading brotli-1.2.1-cp313-cp313-win_amd64.whl (371 kB)
+Downloading mutagen-1.48.1-py3-none-any.whl (195 kB)
+Downloading pycparser-3.12-py3-none-any.whl (62 kB)
+Downloading pycryptodomex-3.24.2-cp37-abi3-win_amd64.whl (1.8 MB)
+   ---------------------------------------- 1.8/1.8 MB 60.1 MB/s  0:00:00
+Installing collected packages: brotli, yt-dlp-ejs, yt-dlp, websockets, urllib3, pycryptodomex, pycparser, mutagen, idna, charset_normalizer, certifi, requests, cffi, curl-cffi
+
+Successfully installed brotli-1.2.1 certifi-2026.11.20 cffi-2.1.1 charset_normalizer-3.5.3 curl-cffi-0.17.0 idna-3.20 mutagen-1.48.1 pycparser-3.12 pycryptodomex-3.24.2 requests-2.34.2 urllib3-2.8.0 websockets-17.4 yt-dlp-2026.11.23 yt-dlp-ejs-0.8.0
+BtbN/FFmpeg-Builds latest: ffmpeg-n9.0-latest-win64-gpl-9.0.zip
+download https://github.com/FFmpeg-Builds/FFmpeg-Builds/releases/download/latest/ffmpeg-n9.0-latest-win64-gpl-9.0.zip
+denoland/deno v2.9.8: deno-x86_64-pc-windows-msvc.zip
+download https://github.com/denoland/deno/releases/download/v2.9.8/deno-x86_64-pc-windows-msvc.zip
+deno 2.9.8 (stable, release, x86_64-pc-windows-msvc)
+v8 15.0.245.2-rusty
+typescript 6.0.3
+yt-dlp 2026.11.23 curl_cffi 0.17.0
+
+Name
+----
+app
+bin
+python
+bmd.ico
+NOTICE.txt
+VERSION
+
+
