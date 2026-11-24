@@ -37,7 +37,7 @@ jobs:
           & build\BulkMediaDownloader\bin\ffmpeg.exe -v error -y -f lavfi -i testsrc=size=320x240:rate=25:duration=3 -f lavfi -i sine=frequency=440:duration=3 -c:v libx264 -pix_fmt yuv420p -c:a aac -shortest build\www\test.mp4
           $srv = Start-Process python -ArgumentList '-m', 'http.server', '8765', '--bind', '127.0.0.1', '--directory', 'build\www' -PassThru -WindowStyle Hidden
           Start-Sleep 3
-          & build\BulkMediaDownloader\python\python.exe app\bmd.py --smoke http://127.0.0.1:8765/test.mp4 *>&1 | Tee-Object -FilePath build\logs\smoke.txt
+          & build\BulkMediaDownloader\python\python.exe build\BulkMediaDownloader\app\bmd.py --smoke http://127.0.0.1:8765/test.mp4 *>&1 | Tee-Object -FilePath build\logs\smoke.txt
           $code = $LASTEXITCODE
           Stop-Process $srv -ErrorAction SilentlyContinue
           if ($code -ne 0) { Write-Host "::error title=smoke::$((Get-Content build\logs\smoke.txt -Tail 15) -join ' | ')"; throw 'the test download failed' }
@@ -45,7 +45,7 @@ jobs:
         continue-on-error: true
         shell: pwsh
         run: |
-          & build\BulkMediaDownloader\python\python.exe app\bmd.py --smoke --verbose https://www.youtube.com/watch?v=jNQXAC9IVRw *>&1 | Tee-Object -FilePath build\logs\youtube.txt
+          & build\BulkMediaDownloader\python\python.exe build\BulkMediaDownloader\app\bmd.py --smoke --verbose https://www.youtube.com/watch?v=jNQXAC9IVRw *>&1 | Tee-Object -FilePath build\logs\youtube.txt
       - name: Installer
         shell: pwsh
         run: |
