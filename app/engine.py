@@ -231,6 +231,7 @@ def make_zip(folder):
 
 # ------------------------------------------------------------------ one link
 VERBOSE = False
+EXTRA_OPTS = {}          # the web server adds its limits here (largest file, longest video)
 
 
 class _Log:
@@ -295,6 +296,7 @@ def _options(quality, folder, item, done_files, log):
     deno = next((p for p in (os.path.join(BIN, 'deno.exe'), os.path.join(BIN, 'deno')) if os.path.isfile(p)), None)
     if deno:
         opts['js_runtimes'] = {'deno': {'path': deno}}
+    opts.update(EXTRA_OPTS)
     if quality == 'audio':
         opts['format'] = 'ba/b'
         opts['postprocessors'] = [{'key': 'FFmpegExtractAudio', 'preferredcodec': 'mp3', 'preferredquality': '192'}]

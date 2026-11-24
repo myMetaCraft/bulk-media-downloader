@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bulk Media Downloader: Free Bulk Video &amp; Photo Downloader</title>
-<meta name="description" content="Paste up to 100 links and download Instagram Reels and photos, TikTok videos and YouTube Shorts and videos at once. Free Windows app, no account, no ads.">
+<meta name="description" content="Paste up to 30 links and download Instagram Reels and photos, TikTok videos and YouTube Shorts and videos at once, in one ZIP. Free, online, no account, no ads.">
 <link rel="canonical" href="https://bulkmediadownloader.com/">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Bulk Media Downloader">
 <meta property="og:title" content="Bulk Media Downloader: Free Bulk Video &amp; Photo Downloader">
-<meta property="og:description" content="Paste up to 100 links and download Instagram Reels and photos, TikTok videos and YouTube Shorts and videos at once. Free Windows app, no account, no ads.">
+<meta property="og:description" content="Paste up to 30 links and download Instagram Reels and photos, TikTok videos and YouTube Shorts and videos at once, in one ZIP. Free, online, no account, no ads.">
 <meta property="og:url" content="https://bulkmediadownloader.com/">
 <meta property="og:image" content="https://bulkmediadownloader.com/og-image.png">
 <meta property="og:image:width" content="1200">
@@ -45,7 +45,8 @@ p.lead{font-size:20px;color:var(--muted);max-width:36em;margin:0 0 26px}
 .btn{display:inline-block;background:var(--cobalt);color:#fff;text-decoration:none;font-weight:650;padding:15px 26px;border-radius:12px;font-size:18px}
 .btn:hover{background:var(--cobalt-dark)}
 .small{font-size:14px;color:var(--muted)}
-.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;padding:10px 0 20px}
+.hero{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:40px;align-items:center;padding:10px 0 20px}
+.hero h1{font-size:clamp(36px,5.2vw,60px)}
 @media(max-width:880px){.hero{grid-template-columns:1fr}}
 .demo{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;font:13px/1.9 Consolas,"Cascadia Mono",ui-monospace,monospace}
 .demo .col{background:#f6f8fb;border-radius:10px;padding:10px 12px;overflow:hidden}
@@ -78,8 +79,37 @@ details p{margin:10px 0 2px;color:var(--muted)}
 footer{border-top:1px solid var(--line);padding:24px 0 40px;font-size:14px;color:var(--muted)}
 footer nav{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px}
 footer a{color:var(--muted)}
+
+.tool{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 1px 0 var(--line)}
+.tool .cnt{display:flex;align-items:baseline;gap:10px;min-height:40px;margin-bottom:8px}
+.tool .cnt b{font:750 34px/1 "Segoe UI Variable Display","Segoe UI",system-ui,sans-serif;font-variant-numeric:tabular-nums;background:linear-gradient(transparent 58%,var(--marker) 58% 92%,transparent 92%);padding:0 4px}
+.tool .cnt span{color:var(--muted);font-size:15px}
+.tool textarea{width:100%;min-height:170px;resize:vertical;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#f8fafc;font:14px/1.6 Consolas,"Cascadia Mono",ui-monospace,monospace;color:var(--ink)}
+.tool .row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.tool select{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff;font:inherit;font-size:16px;color:var(--ink)}
+.tool button.go{flex:1;min-width:180px;border:0;border-radius:12px;padding:14px;background:var(--cobalt);color:#fff;font:650 17px/1 system-ui,sans-serif;cursor:pointer}
+.tool button.go:hover{background:var(--cobalt-dark)}
+.tool button.go:disabled{background:#9aa7bd;cursor:not-allowed}
+.tool .err{color:#c23b3b;font-size:14px;margin-top:8px;min-height:1em}
+.tool .hint{font-size:13.5px;color:var(--muted);margin-top:8px}
+.res{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.res .it>div{min-width:0}
+.res .it{display:grid;grid-template-columns:74px minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid #edf0f5;font-size:14px}
+.res .it:last-child{border-bottom:0}
+.res .src{font-size:12px;color:var(--muted)}
+.res .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.res .e{color:#c23b3b;font-size:13px}
+.res .st{font-size:13px;white-space:nowrap;color:var(--muted)}
+.res .st.done{color:#148a5b}
+.res .bar{height:5px;background:#e7ebf2;border-radius:3px;overflow:hidden;margin-top:4px}
+.res .bar i{display:block;height:100%;background:var(--cobalt);transition:width .4s}
+.res .files a{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.zip{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:#f6f8fb;border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.zip a{background:var(--ink);color:#fff;text-decoration:none;font-weight:650;padding:11px 18px;border-radius:10px}
+.zip span{font-size:13.5px;color:var(--muted)}
+@media(prefers-reduced-motion:reduce){.res .bar i{transition:none}}
 </style>
-<script type="application/ld+json">[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Bulk Media Downloader","operatingSystem":"Windows 10, Windows 11","applicationCategory":"MultimediaApplication","softwareVersion":"0.1.0","url":"https://bulkmediadownloader.com/","downloadUrl":"https://github.com/myMetaCraft/bulk-media-downloader/releases/latest/download/BulkMediaDownloader-Setup.exe","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Download videos and photos from many Instagram, TikTok and YouTube links at once."},{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is Bulk Media Downloader free?","acceptedAnswer":{"@type":"Answer","text":"Yes. The app is free, with no account, no ads and no limit on how often you use it. One batch can have up to 100 links."}},{"@type":"Question","name":"Which sites does it support?","acceptedAnswer":{"@type":"Answer","text":"Instagram (Reels, video posts, photos and carousels), TikTok videos, and YouTube Shorts and videos. Many other video sites work too, because the app is built on yt-dlp."}},{"@type":"Question","name":"Does it work on Mac or phones?","acceptedAnswer":{"@type":"Answer","text":"Not yet. It is a Windows app for Windows 10 and 11."}},{"@type":"Question","name":"Why does Windows show a blue warning when I install it?","acceptedAnswer":{"@type":"Answer","text":"Windows shows that warning for new apps that are not yet widely downloaded. Click More info, then Run anyway."}},{"@type":"Question","name":"Can I download private posts?","acceptedAnswer":{"@type":"Answer","text":"No. The app does not log in to your accounts, so it only downloads posts anyone can see without logging in."}},{"@type":"Question","name":"Where do the files go?","acceptedAnswer":{"@type":"Answer","text":"Into your Downloads folder, under Bulk Media Downloader, with one folder per batch. You can pick another folder in the app."}},{"@type":"Question","name":"Is it legal to download videos?","acceptedAnswer":{"@type":"Answer","text":"It depends on what you download and why. Downloading your own content, or content you have permission to use, is fine. Re-uploading other people's videos without permission is not. The sites' own terms may also limit downloading. You are responsible for what you download."}}]}]</script>
+<script type="application/ld+json">[{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Bulk Media Downloader","operatingSystem":"Windows 10, Windows 11","applicationCategory":"MultimediaApplication","softwareVersion":"0.1.1","url":"https://bulkmediadownloader.com/","downloadUrl":"https://github.com/myMetaCraft/bulk-media-downloader/releases/latest/download/BulkMediaDownloader-Setup.exe","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Download videos and photos from many Instagram, TikTok and YouTube links at once."},{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is Bulk Media Downloader free?","acceptedAnswer":{"@type":"Answer","text":"Yes. The website and the Windows app are free, with no account and no ads. On the website you can paste up to 30 links at once and about 120 links per hour; the app takes up to 100 at once."}},{"@type":"Question","name":"Do I need to install anything?","acceptedAnswer":{"@type":"Answer","text":"No. Paste the links on this page and download the files in your browser, on a computer or a phone. The Windows app is optional, for big batches and 4K."}},{"@type":"Question","name":"How long are my files kept?","acceptedAnswer":{"@type":"Answer","text":"One hour after they are ready. Then they are deleted from our server, so download them right away."}},{"@type":"Question","name":"Which sites does it support?","acceptedAnswer":{"@type":"Answer","text":"Instagram (Reels, video posts, photos and carousels), TikTok videos, and YouTube Shorts and videos. Many other video sites work too, because the app is built on yt-dlp."}},{"@type":"Question","name":"Does it work on Mac or phones?","acceptedAnswer":{"@type":"Answer","text":"The website works on any device with a browser, including iPhone and Android. The app is for Windows 10 and 11."}},{"@type":"Question","name":"Why does Windows show a blue warning when I install the app?","acceptedAnswer":{"@type":"Answer","text":"Windows shows that warning for new apps that are not yet widely downloaded. Click More info, then Run anyway."}},{"@type":"Question","name":"Can I download private posts?","acceptedAnswer":{"@type":"Answer","text":"No. Bulk Media Downloader never logs in to your accounts, so it only downloads posts anyone can see without logging in."}},{"@type":"Question","name":"Is it legal to download videos?","acceptedAnswer":{"@type":"Answer","text":"It depends on what you download and why. Downloading your own content, or content you have permission to use, is fine. Re-uploading other people's videos without permission is not. The sites' own terms may also limit downloading. You are responsible for what you download."}}]}]</script>
 </head>
 <body class="home">
 <div class="wrap">
@@ -90,22 +120,28 @@ footer a{color:var(--muted)}
 <section class="hero">
   <div>
     <h1>Paste 30 links. <span class="m">Get 30 files.</span></h1>
-    <p class="lead">Bulk Media Downloader saves videos and photos from Instagram, TikTok and YouTube in one go. Paste the links, press Download, and every file lands in one folder, or one ZIP if you like.</p>
-    <div class="cta"><a class="btn" href="https://github.com/myMetaCraft/bulk-media-downloader/releases/latest/download/BulkMediaDownloader-Setup.exe" id="download">Download for Windows</a><span class="small">Free. Windows 10 and 11. No account, no ads.<br>Version 0.1.0</span></div>
+    <p class="lead">Download Instagram Reels and photos, TikTok videos and YouTube Shorts and videos, many at once, right here in your browser. You get one ZIP with everything, and each file on its own.</p>
+    <p class="small">Free, no account, no ads. Need 100 links at once, or 4K? Get the <a href="https://github.com/myMetaCraft/bulk-media-downloader/releases/latest/download/BulkMediaDownloader-Setup.exe">free Windows app</a>.</p>
   </div>
-  <div class="demo" aria-label="Links in, files out">
-    <div class="col"><div>instagram.com/reel/C9x…</div><div>tiktok.com/@chef/video/73…</div><div>youtube.com/shorts/Qk…</div><div>instagram.com/p/DAa…</div><div>youtu.be/dQw…</div><div>tiktok.com/@run/video/74…</div></div>
-    <div class="arrow" aria-hidden="true">→</div>
-    <div class="col files"><div>reel by chef.mp4</div><div>pasta in 60s.mp4</div><div>short by gym.mp4</div><div class="ph">carousel 1.jpg</div><div class="ph">carousel 2.jpg</div><div>full video.mp4</div></div>
-    <p class="cap">Every batch gets its own folder in Downloads. Photos and carousels come out as pictures, videos as MP4.</p>
+  <div class="tool" id="tool">
+  <div class="cnt" aria-live="polite"><b id="n">0</b><span id="kinds">links. Paste them below.</span></div>
+  <label for="links" class="small" style="display:block;margin-bottom:6px">Links from Instagram, TikTok or YouTube</label>
+  <textarea id="links" spellcheck="false" placeholder="https://www.instagram.com/reel/...&#10;https://www.tiktok.com/@name/video/...&#10;https://www.youtube.com/shorts/..."></textarea>
+  <div class="row">
+    <select id="quality" aria-label="Quality"><option value="best">Best quality (up to 1080p)</option><option value="720">Up to 720p</option><option value="audio">Audio only (MP3)</option></select>
+    <button class="go" id="go" type="button" disabled>Download</button>
   </div>
+  <div class="err" id="err" role="alert"></div>
+  <div class="hint">Up to 30 links at once. Public posts only. Files are deleted after one hour.</div>
+  <div class="res" id="res" hidden></div>
+</div>
 </section>
 
 <h2>How it works</h2>
 <ol class="steps">
   <li><h3>Copy the links</h3>In Instagram, TikTok or YouTube, tap Share and Copy link. Collect as many as you want, in a note or a chat.</li>
   <li><h3>Paste them all at once</h3>Paste one link per line, or a whole message with links in it. The app finds every link and counts them.</li>
-  <li><h3>Press Download</h3>Pick the quality, or audio only as MP3. The files download side by side and land in one folder.</li>
+  <li><h3>Press Download</h3>Pick the quality, or audio only as MP3. When it is done, download one ZIP with everything, or each file on its own.</li>
 </ol>
 
 <h2>What it downloads</h2>
@@ -117,24 +153,104 @@ footer a{color:var(--muted)}
   <div class="card"><h3>YouTube videos</h3><p>Long videos in up to 4K when the video has it, 1080p, 720p or MP3.</p><a class="more" href="/youtube-video-downloader/">YouTube video downloader</a></div>
 </div>
 
-<h2>Why an app, not a website</h2>
+<h2>Why Bulk Media Downloader</h2>
 <div class="why">
-  <div><h3>Many links, one click</h3><p>Websites take one link at a time. Here you paste up to 100 and walk away.</p></div>
-  <div><h3>Your links stay on your computer</h3><p>The app downloads straight from your own internet connection. Your links are not sent to our servers, because there are none.</p></div>
-  <div><h3>No ads, no pop-ups, no account</h3><p>Nothing to sign up for and nothing to click past. Open it, paste, download.</p></div>
-  <div><h3>One folder, or one ZIP</h3><p>Each batch gets its own folder, named by date and time. Tick one box to also get everything in a single ZIP file.</p></div>
-  <div><h3>Retry what failed</h3><p>A deleted or private post does not stop the rest. It is marked with the reason and a Retry button.</p></div>
-  <div><h3>Keeps itself up to date</h3><p>Sites change often. The app fetches the newest version of its download engine by itself.</p></div>
+  <div><h3>Many links, one click</h3><p>Most download sites take one link at a time. Here you paste up to 30 and get them all.</p></div>
+  <div><h3>One ZIP, or file by file</h3><p>Everything comes in a single ZIP, and every video and photo also has its own download link, handy on a phone.</p></div>
+  <div><h3>No ads, no pop-ups, no account</h3><p>Nothing to sign up for and nothing to click past. Paste, download, done.</p></div>
+  <div><h3>Photos and carousels too</h3><p>Instagram photo posts and every slide of a carousel come out as full-size pictures.</p></div>
+  <div><h3>Gone after an hour</h3><p>Downloaded files are deleted from our server one hour after they are ready.</p></div>
+  <div><h3>A Windows app for big batches</h3><p>The free app takes up to 100 links at once, saves in up to 4K, and downloads from your own connection.</p></div>
 </div>
 <p class="note">Download only videos and photos you made yourself or have permission to use, and follow the rules of the site you download from. Private posts and posts that need a login cannot be downloaded.</p>
 
-<h2 id="faq">Questions</h2><details><summary>Is Bulk Media Downloader free?</summary><p>Yes. The app is free, with no account, no ads and no limit on how often you use it. One batch can have up to 100 links.</p></details><details><summary>Which sites does it support?</summary><p>Instagram (Reels, video posts, photos and carousels), TikTok videos, and YouTube Shorts and videos. Many other video sites work too, because the app is built on yt-dlp.</p></details><details><summary>Does it work on Mac or phones?</summary><p>Not yet. It is a Windows app for Windows 10 and 11.</p></details><details><summary>Why does Windows show a blue warning when I install it?</summary><p>Windows shows that warning for new apps that are not yet widely downloaded. Click More info, then Run anyway.</p></details><details><summary>Can I download private posts?</summary><p>No. The app does not log in to your accounts, so it only downloads posts anyone can see without logging in.</p></details><details><summary>Where do the files go?</summary><p>Into your Downloads folder, under Bulk Media Downloader, with one folder per batch. You can pick another folder in the app.</p></details><details><summary>Is it legal to download videos?</summary><p>It depends on what you download and why. Downloading your own content, or content you have permission to use, is fine. Re-uploading other people's videos without permission is not. The sites' own terms may also limit downloading. You are responsible for what you download.</p></details>
-<section class="end"><h2>Paste the links. Get the files.</h2><a class="btn" href="https://github.com/myMetaCraft/bulk-media-downloader/releases/latest/download/BulkMediaDownloader-Setup.exe">Download for Windows</a></section>
+<h2 id="faq">Questions</h2><details><summary>Is Bulk Media Downloader free?</summary><p>Yes. The website and the Windows app are free, with no account and no ads. On the website you can paste up to 30 links at once and about 120 links per hour; the app takes up to 100 at once.</p></details><details><summary>Do I need to install anything?</summary><p>No. Paste the links on this page and download the files in your browser, on a computer or a phone. The Windows app is optional, for big batches and 4K.</p></details><details><summary>How long are my files kept?</summary><p>One hour after they are ready. Then they are deleted from our server, so download them right away.</p></details><details><summary>Which sites does it support?</summary><p>Instagram (Reels, video posts, photos and carousels), TikTok videos, and YouTube Shorts and videos. Many other video sites work too, because the app is built on yt-dlp.</p></details><details><summary>Does it work on Mac or phones?</summary><p>The website works on any device with a browser, including iPhone and Android. The app is for Windows 10 and 11.</p></details><details><summary>Why does Windows show a blue warning when I install the app?</summary><p>Windows shows that warning for new apps that are not yet widely downloaded. Click More info, then Run anyway.</p></details><details><summary>Can I download private posts?</summary><p>No. Bulk Media Downloader never logs in to your accounts, so it only downloads posts anyone can see without logging in.</p></details><details><summary>Is it legal to download videos?</summary><p>It depends on what you download and why. Downloading your own content, or content you have permission to use, is fine. Re-uploading other people's videos without permission is not. The sites' own terms may also limit downloading. You are responsible for what you download.</p></details>
+<section class="end"><h2>Need 100 links at once, or 4K?</h2><a class="btn" href="https://github.com/myMetaCraft/bulk-media-downloader/releases/latest/download/BulkMediaDownloader-Setup.exe">Get the free Windows app</a></section>
 </main>
 <footer>
 <nav><a href="/">Home</a><a href="/instagram-reels-downloader/">Instagram Reels</a><a href="/instagram-photo-downloader/">Instagram photos</a><a href="/tiktok-downloader/">TikTok</a><a href="/youtube-shorts-downloader/">YouTube Shorts</a><a href="/youtube-video-downloader/">YouTube videos</a><a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav>
 <p>Download only what you created or have permission to use. Bulk Media Downloader is not affiliated with Instagram, Meta, TikTok, YouTube or Google; their names are used only to say which links the app reads.</p>
 </footer>
 </div>
+<script>
+(function () {
+  var API = 'https://api.bulkmediadownloader.com', API2 = 'https://bulk-media-downloader-production.up.railway.app', base = API, MAX = 30;
+  var NAMES = {instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube', other: 'Link'};
+  var $ = function (id) { return document.getElementById(id); };
+  var job = null, timer = null;
+  function call(path, opt) {
+    return fetch(base + path, opt).catch(function (e) {
+      if (base === API) { base = API2; return fetch(base + path, opt); }
+      throw e;
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) {
+        if (!r.ok) throw new Error(j.error || 'The server did not answer. Please try again.');
+        return j;
+      });
+    });
+  }
+  function platformOf(u) {
+    var h = u.toLowerCase().replace(/^https?:\/\//, '').split('/')[0];
+    if (/(^|\.)instagram\.com$/.test(h) || h === 'instagr.am') return 'instagram';
+    if (/(^|\.)tiktok\.com$/.test(h)) return 'tiktok';
+    if (/(^|\.)(youtube\.com|youtu\.be)$/.test(h)) return 'youtube';
+    return 'other';
+  }
+  function links() {
+    var seen = {}, out = [], m, re = /https?:\/\/[^\s<>"'`]+/gi, t = $('links').value;
+    while ((m = re.exec(t))) { var u = m[0].replace(/[.,;:!?)\]}>]+$/, ''); var k = u.split('#')[0]; if (!seen[k]) { seen[k] = 1; out.push(u); } }
+    return out;
+  }
+  function count() {
+    var ls = links(), c = {};
+    $('n').textContent = ls.length;
+    ls.forEach(function (u) { var p = platformOf(u); c[p] = (c[p] || 0) + 1; });
+    var parts = Object.keys(c).map(function (p) { return c[p] + ' ' + NAMES[p]; });
+    $('kinds').textContent = ls.length ? (ls.length === 1 ? 'link: ' : 'links: ') + parts.join(', ') + (ls.length > MAX ? '. Up to ' + MAX + ' at once here.' : '') : 'links. Paste them below.';
+    $('go').disabled = !ls.length || ls.length > MAX || (job && !job.done);
+    $('go').textContent = ls.length ? 'Download ' + ls.length + (ls.length === 1 ? ' link' : ' links') : 'Download';
+  }
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
+  function size(b) { return b > 1e9 ? (b / 1e9).toFixed(1) + ' GB' : b > 1e6 ? Math.round(b / 1e6) + ' MB' : Math.max(1, Math.round(b / 1e3)) + ' KB'; }
+  function full(u) { return u.charAt(0) === '/' ? base + u : u; }
+  function render() {
+    var box = $('res'); box.hidden = false; box.replaceChildren();
+    var ok = job.items.filter(function (i) { return i.state === 'done'; }).length;
+    if (job.done && job.zip) {
+      var z = el('div', 'zip'), a = el('a', '', 'Download ZIP (' + size(job.zip.size) + ')');
+      a.href = full(job.zip.url); a.rel = 'nofollow'; z.append(a);
+      z.append(el('span', '', ok + ' of ' + job.items.length + ' downloaded. Available for one hour.'));
+      box.append(z);
+    } else if (job.done) {
+      box.append(el('div', 'e', job.zip_error || 'Nothing could be downloaded from these links.'));
+    } else {
+      box.append(el('div', 'small', ok + ' of ' + job.items.length + ' done. Keep this page open.'));
+    }
+    job.items.forEach(function (i) {
+      var row = el('div', 'it'), what = el('div');
+      row.append(el('span', 'src', NAMES[i.platform] || 'Link'));
+      what.append(el('div', 't', i.title || i.url));
+      if (i.state === 'working') { var b = el('div', 'bar'), f = el('i'); f.style.width = Math.max(4, i.percent) + '%'; b.append(f); what.append(b); }
+      if (i.error) what.append(el('div', 'e', i.error));
+      if (i.links && i.links.length) { var fl = el('div', 'files'); i.links.forEach(function (l) { var a = el('a', '', l.name + ' (' + size(l.size) + ')'); a.href = full(l.url); a.rel = 'nofollow'; fl.append(a); }); what.append(fl); }
+      row.append(what);
+      row.append(el('span', 'st ' + i.state, i.state === 'done' ? 'done' : i.state === 'failed' ? 'failed' : i.state === 'working' ? (i.percent ? i.percent + '%' : 'working') : 'waiting'));
+      box.append(row);
+    });
+  }
+  function poll() {
+    call('/api/jobs/' + job.id).then(function (j) { job = j; render(); count(); if (!j.done) timer = setTimeout(poll, 1500); })
+      .catch(function (e) { $('err').textContent = e.message; timer = setTimeout(poll, 4000); });
+  }
+  $('links').addEventListener('input', count);
+  $('go').onclick = function () {
+    $('err').textContent = ''; clearTimeout(timer); $('go').disabled = true;
+    call('/api/jobs', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({text: $('links').value, quality: $('quality').value})})
+      .then(function (j) { job = {id: j.id, done: false, items: links().map(function (u, n) { return {n: n, url: u, platform: platformOf(u), state: 'waiting', percent: 0, title: '', error: '', links: []}; })}; render(); poll(); })
+      .catch(function (e) { $('err').textContent = e.message; job = null; count(); });
+  };
+  count();
+})();
+</script>
 </body>
 </html>

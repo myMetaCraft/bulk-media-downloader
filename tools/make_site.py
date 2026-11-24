@@ -35,7 +35,8 @@ p.lead{font-size:20px;color:var(--muted);max-width:36em;margin:0 0 26px}
 .btn{display:inline-block;background:var(--cobalt);color:#fff;text-decoration:none;font-weight:650;padding:15px 26px;border-radius:12px;font-size:18px}
 .btn:hover{background:var(--cobalt-dark)}
 .small{font-size:14px;color:var(--muted)}
-.hero{display:grid;grid-template-columns:1.05fr .95fr;gap:40px;align-items:center;padding:10px 0 20px}
+.hero{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:40px;align-items:center;padding:10px 0 20px}
+.hero h1{font-size:clamp(36px,5.2vw,60px)}
 @media(max-width:880px){.hero{grid-template-columns:1fr}}
 .demo{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:18px;display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;font:13px/1.9 Consolas,"Cascadia Mono",ui-monospace,monospace}
 .demo .col{background:#f6f8fb;border-radius:10px;padding:10px 12px;overflow:hidden}
@@ -70,11 +71,139 @@ footer nav{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px}
 footer a{color:var(--muted)}
 """
 
+API = 'https://api.bulkmediadownloader.com'
+API_FALLBACK = 'https://bulk-media-downloader-production.up.railway.app'
+
+TOOL_CSS = """
+.tool{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;box-shadow:0 1px 0 var(--line)}
+.tool .cnt{display:flex;align-items:baseline;gap:10px;min-height:40px;margin-bottom:8px}
+.tool .cnt b{font:750 34px/1 "Segoe UI Variable Display","Segoe UI",system-ui,sans-serif;font-variant-numeric:tabular-nums;background:linear-gradient(transparent 58%,var(--marker) 58% 92%,transparent 92%);padding:0 4px}
+.tool .cnt span{color:var(--muted);font-size:15px}
+.tool textarea{width:100%;min-height:170px;resize:vertical;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:#f8fafc;font:14px/1.6 Consolas,"Cascadia Mono",ui-monospace,monospace;color:var(--ink)}
+.tool .row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.tool select{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fff;font:inherit;font-size:16px;color:var(--ink)}
+.tool button.go{flex:1;min-width:180px;border:0;border-radius:12px;padding:14px;background:var(--cobalt);color:#fff;font:650 17px/1 system-ui,sans-serif;cursor:pointer}
+.tool button.go:hover{background:var(--cobalt-dark)}
+.tool button.go:disabled{background:#9aa7bd;cursor:not-allowed}
+.tool .err{color:#c23b3b;font-size:14px;margin-top:8px;min-height:1em}
+.tool .hint{font-size:13.5px;color:var(--muted);margin-top:8px}
+.res{margin-top:14px;border-top:1px solid var(--line);padding-top:12px}
+.res .it>div{min-width:0}
+.res .it{display:grid;grid-template-columns:74px minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 0;border-bottom:1px solid #edf0f5;font-size:14px}
+.res .it:last-child{border-bottom:0}
+.res .src{font-size:12px;color:var(--muted)}
+.res .t{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.res .e{color:#c23b3b;font-size:13px}
+.res .st{font-size:13px;white-space:nowrap;color:var(--muted)}
+.res .st.done{color:#148a5b}
+.res .bar{height:5px;background:#e7ebf2;border-radius:3px;overflow:hidden;margin-top:4px}
+.res .bar i{display:block;height:100%;background:var(--cobalt);transition:width .4s}
+.res .files a{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.zip{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:#f6f8fb;border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.zip a{background:var(--ink);color:#fff;text-decoration:none;font-weight:650;padding:11px 18px;border-radius:10px}
+.zip span{font-size:13.5px;color:var(--muted)}
+@media(prefers-reduced-motion:reduce){.res .bar i{transition:none}}
+"""
+
+TOOL = f"""<div class="tool" id="tool">
+  <div class="cnt" aria-live="polite"><b id="n">0</b><span id="kinds">links. Paste them below.</span></div>
+  <label for="links" class="small" style="display:block;margin-bottom:6px">Links from Instagram, TikTok or YouTube</label>
+  <textarea id="links" spellcheck="false" placeholder="https://www.instagram.com/reel/...&#10;https://www.tiktok.com/@name/video/...&#10;https://www.youtube.com/shorts/..."></textarea>
+  <div class="row">
+    <select id="quality" aria-label="Quality"><option value="best">Best quality (up to 1080p)</option><option value="720">Up to 720p</option><option value="audio">Audio only (MP3)</option></select>
+    <button class="go" id="go" type="button" disabled>Download</button>
+  </div>
+  <div class="err" id="err" role="alert"></div>
+  <div class="hint">Up to 30 links at once. Public posts only. Files are deleted after one hour.</div>
+  <div class="res" id="res" hidden></div>
+</div>"""
+
+TOOL_JS = r"""<script>
+(function () {
+  var API = '__API__', API2 = '__API2__', base = API, MAX = 30;
+  var NAMES = {instagram: 'Instagram', tiktok: 'TikTok', youtube: 'YouTube', other: 'Link'};
+  var $ = function (id) { return document.getElementById(id); };
+  var job = null, timer = null;
+  function call(path, opt) {
+    return fetch(base + path, opt).catch(function (e) {
+      if (base === API) { base = API2; return fetch(base + path, opt); }
+      throw e;
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (j) {
+        if (!r.ok) throw new Error(j.error || 'The server did not answer. Please try again.');
+        return j;
+      });
+    });
+  }
+  function platformOf(u) {
+    var h = u.toLowerCase().replace(/^https?:\/\//, '').split('/')[0];
+    if (/(^|\.)instagram\.com$/.test(h) || h === 'instagr.am') return 'instagram';
+    if (/(^|\.)tiktok\.com$/.test(h)) return 'tiktok';
+    if (/(^|\.)(youtube\.com|youtu\.be)$/.test(h)) return 'youtube';
+    return 'other';
+  }
+  function links() {
+    var seen = {}, out = [], m, re = /https?:\/\/[^\s<>"'`]+/gi, t = $('links').value;
+    while ((m = re.exec(t))) { var u = m[0].replace(/[.,;:!?)\]}>]+$/, ''); var k = u.split('#')[0]; if (!seen[k]) { seen[k] = 1; out.push(u); } }
+    return out;
+  }
+  function count() {
+    var ls = links(), c = {};
+    $('n').textContent = ls.length;
+    ls.forEach(function (u) { var p = platformOf(u); c[p] = (c[p] || 0) + 1; });
+    var parts = Object.keys(c).map(function (p) { return c[p] + ' ' + NAMES[p]; });
+    $('kinds').textContent = ls.length ? (ls.length === 1 ? 'link: ' : 'links: ') + parts.join(', ') + (ls.length > MAX ? '. Up to ' + MAX + ' at once here.' : '') : 'links. Paste them below.';
+    $('go').disabled = !ls.length || ls.length > MAX || (job && !job.done);
+    $('go').textContent = ls.length ? 'Download ' + ls.length + (ls.length === 1 ? ' link' : ' links') : 'Download';
+  }
+  function el(tag, cls, text) { var e = document.createElement(tag); if (cls) e.className = cls; if (text !== undefined) e.textContent = text; return e; }
+  function size(b) { return b > 1e9 ? (b / 1e9).toFixed(1) + ' GB' : b > 1e6 ? Math.round(b / 1e6) + ' MB' : Math.max(1, Math.round(b / 1e3)) + ' KB'; }
+  function full(u) { return u.charAt(0) === '/' ? base + u : u; }
+  function render() {
+    var box = $('res'); box.hidden = false; box.replaceChildren();
+    var ok = job.items.filter(function (i) { return i.state === 'done'; }).length;
+    if (job.done && job.zip) {
+      var z = el('div', 'zip'), a = el('a', '', 'Download ZIP (' + size(job.zip.size) + ')');
+      a.href = full(job.zip.url); a.rel = 'nofollow'; z.append(a);
+      z.append(el('span', '', ok + ' of ' + job.items.length + ' downloaded. Available for one hour.'));
+      box.append(z);
+    } else if (job.done) {
+      box.append(el('div', 'e', job.zip_error || 'Nothing could be downloaded from these links.'));
+    } else {
+      box.append(el('div', 'small', ok + ' of ' + job.items.length + ' done. Keep this page open.'));
+    }
+    job.items.forEach(function (i) {
+      var row = el('div', 'it'), what = el('div');
+      row.append(el('span', 'src', NAMES[i.platform] || 'Link'));
+      what.append(el('div', 't', i.title || i.url));
+      if (i.state === 'working') { var b = el('div', 'bar'), f = el('i'); f.style.width = Math.max(4, i.percent) + '%'; b.append(f); what.append(b); }
+      if (i.error) what.append(el('div', 'e', i.error));
+      if (i.links && i.links.length) { var fl = el('div', 'files'); i.links.forEach(function (l) { var a = el('a', '', l.name + ' (' + size(l.size) + ')'); a.href = full(l.url); a.rel = 'nofollow'; fl.append(a); }); what.append(fl); }
+      row.append(what);
+      row.append(el('span', 'st ' + i.state, i.state === 'done' ? 'done' : i.state === 'failed' ? 'failed' : i.state === 'working' ? (i.percent ? i.percent + '%' : 'working') : 'waiting'));
+      box.append(row);
+    });
+  }
+  function poll() {
+    call('/api/jobs/' + job.id).then(function (j) { job = j; render(); count(); if (!j.done) timer = setTimeout(poll, 1500); })
+      .catch(function (e) { $('err').textContent = e.message; timer = setTimeout(poll, 4000); });
+  }
+  $('links').addEventListener('input', count);
+  $('go').onclick = function () {
+    $('err').textContent = ''; clearTimeout(timer); $('go').disabled = true;
+    call('/api/jobs', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({text: $('links').value, quality: $('quality').value})})
+      .then(function (j) { job = {id: j.id, done: false, items: links().map(function (u, n) { return {n: n, url: u, platform: platformOf(u), state: 'waiting', percent: 0, title: '', error: '', links: []}; })}; render(); poll(); })
+      .catch(function (e) { $('err').textContent = e.message; job = null; count(); });
+  };
+  count();
+})();
+</script>""".replace('__API__', API).replace('__API2__', API_FALLBACK)
+
 PAGES = {}
 
 
-def page(slug, title, description, h1, body, faq=None, crumb=None):
-    PAGES[slug] = dict(title=title, description=description, h1=h1, body=body, faq=faq or [], crumb=crumb)
+def page(slug, title, description, h1, body, faq=None, crumb=None, tool=False):
+    PAGES[slug] = dict(title=title, description=description, h1=h1, body=body, faq=faq or [], crumb=crumb, tool=tool)
 
 
 def esc(s):
@@ -134,7 +263,7 @@ def render(slug, p):
 <meta name="theme-color" content="#2346d9">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<style>{CSS}</style>
+<style>{CSS}{TOOL_CSS if p.get('tool') else ''}</style>
 <script type="application/ld+json">{json.dumps(ld, separators=(',', ':'))}</script>
 </head>
 <body class="{'sub' if p['crumb'] else 'home'}">
@@ -144,13 +273,14 @@ def render(slug, p):
 <main>
 {p['body']}
 {faq_html(p['faq'])}
-<section class="end"><h2>Paste the links. Get the files.</h2><a class="btn" href="{DOWNLOAD}">Download for Windows</a></section>
+<section class="end"><h2>{'Need 100 links at once, or 4K?' if p.get('tool') else 'Paste the links. Get the files.'}</h2><a class="btn" href="{DOWNLOAD}">Get the free Windows app</a></section>
 </main>
 <footer>
 <nav><a href="/">Home</a>{nav}<a href="/privacy/">Privacy</a><a href="/terms/">Terms</a></nav>
 <p>Download only what you created or have permission to use. {NAME} is not affiliated with Instagram, Meta, TikTok, YouTube or Google; their names are used only to say which links the app reads.</p>
 </footer>
 </div>
+{TOOL_JS if p.get('tool') else ''}
 </body>
 </html>
 """
@@ -158,27 +288,22 @@ def render(slug, p):
 
 # ------------------------------------------------------------------ home
 page('/', 'Bulk Media Downloader: Free Bulk Video & Photo Downloader',
-     'Paste up to 100 links and download Instagram Reels and photos, TikTok videos and YouTube Shorts and videos at once. Free Windows app, no account, no ads.',
+     'Paste up to 30 links and download Instagram Reels and photos, TikTok videos and YouTube Shorts and videos at once, in one ZIP. Free, online, no account, no ads.',
      'Paste 30 links. Get 30 files.', f"""
 <section class="hero">
   <div>
     <h1>Paste 30 links. <span class="m">Get 30 files.</span></h1>
-    <p class="lead">{NAME} saves videos and photos from Instagram, TikTok and YouTube in one go. Paste the links, press Download, and every file lands in one folder, or one ZIP if you like.</p>
-    {cta()}
+    <p class="lead">Download Instagram Reels and photos, TikTok videos and YouTube Shorts and videos, many at once, right here in your browser. You get one ZIP with everything, and each file on its own.</p>
+    <p class="small">Free, no account, no ads. Need 100 links at once, or 4K? Get the <a href="{DOWNLOAD}">free Windows app</a>.</p>
   </div>
-  <div class="demo" aria-label="Links in, files out">
-    <div class="col"><div>instagram.com/reel/C9x…</div><div>tiktok.com/@chef/video/73…</div><div>youtube.com/shorts/Qk…</div><div>instagram.com/p/DAa…</div><div>youtu.be/dQw…</div><div>tiktok.com/@run/video/74…</div></div>
-    <div class="arrow" aria-hidden="true">→</div>
-    <div class="col files"><div>reel by chef.mp4</div><div>pasta in 60s.mp4</div><div>short by gym.mp4</div><div class="ph">carousel 1.jpg</div><div class="ph">carousel 2.jpg</div><div>full video.mp4</div></div>
-    <p class="cap">Every batch gets its own folder in Downloads. Photos and carousels come out as pictures, videos as MP4.</p>
-  </div>
+  {TOOL}
 </section>
 
 <h2>How it works</h2>
 <ol class="steps">
   <li><h3>Copy the links</h3>In Instagram, TikTok or YouTube, tap Share and Copy link. Collect as many as you want, in a note or a chat.</li>
   <li><h3>Paste them all at once</h3>Paste one link per line, or a whole message with links in it. The app finds every link and counts them.</li>
-  <li><h3>Press Download</h3>Pick the quality, or audio only as MP3. The files download side by side and land in one folder.</li>
+  <li><h3>Press Download</h3>Pick the quality, or audio only as MP3. When it is done, download one ZIP with everything, or each file on its own.</li>
 </ol>
 
 <h2>What it downloads</h2>
@@ -190,23 +315,24 @@ page('/', 'Bulk Media Downloader: Free Bulk Video & Photo Downloader',
   <div class="card"><h3>YouTube videos</h3><p>Long videos in up to 4K when the video has it, 1080p, 720p or MP3.</p><a class="more" href="/youtube-video-downloader/">YouTube video downloader</a></div>
 </div>
 
-<h2>Why an app, not a website</h2>
+<h2>Why Bulk Media Downloader</h2>
 <div class="why">
-  <div><h3>Many links, one click</h3><p>Websites take one link at a time. Here you paste up to 100 and walk away.</p></div>
-  <div><h3>Your links stay on your computer</h3><p>The app downloads straight from your own internet connection. Your links are not sent to our servers, because there are none.</p></div>
-  <div><h3>No ads, no pop-ups, no account</h3><p>Nothing to sign up for and nothing to click past. Open it, paste, download.</p></div>
-  <div><h3>One folder, or one ZIP</h3><p>Each batch gets its own folder, named by date and time. Tick one box to also get everything in a single ZIP file.</p></div>
-  <div><h3>Retry what failed</h3><p>A deleted or private post does not stop the rest. It is marked with the reason and a Retry button.</p></div>
-  <div><h3>Keeps itself up to date</h3><p>Sites change often. The app fetches the newest version of its download engine by itself.</p></div>
+  <div><h3>Many links, one click</h3><p>Most download sites take one link at a time. Here you paste up to 30 and get them all.</p></div>
+  <div><h3>One ZIP, or file by file</h3><p>Everything comes in a single ZIP, and every video and photo also has its own download link, handy on a phone.</p></div>
+  <div><h3>No ads, no pop-ups, no account</h3><p>Nothing to sign up for and nothing to click past. Paste, download, done.</p></div>
+  <div><h3>Photos and carousels too</h3><p>Instagram photo posts and every slide of a carousel come out as full-size pictures.</p></div>
+  <div><h3>Gone after an hour</h3><p>Downloaded files are deleted from our server one hour after they are ready.</p></div>
+  <div><h3>A Windows app for big batches</h3><p>The free app takes up to 100 links at once, saves in up to 4K, and downloads from your own connection.</p></div>
 </div>
 <p class="note">Download only videos and photos you made yourself or have permission to use, and follow the rules of the site you download from. Private posts and posts that need a login cannot be downloaded.</p>
-""", faq=[
-    ('Is Bulk Media Downloader free?', 'Yes. The app is free, with no account, no ads and no limit on how often you use it. One batch can have up to 100 links.'),
+""", tool=True, faq=[
+    ('Is Bulk Media Downloader free?', 'Yes. The website and the Windows app are free, with no account and no ads. On the website you can paste up to 30 links at once and about 120 links per hour; the app takes up to 100 at once.'),
+    ('Do I need to install anything?', 'No. Paste the links on this page and download the files in your browser, on a computer or a phone. The Windows app is optional, for big batches and 4K.'),
+    ('How long are my files kept?', 'One hour after they are ready. Then they are deleted from our server, so download them right away.'),
     ('Which sites does it support?', 'Instagram (Reels, video posts, photos and carousels), TikTok videos, and YouTube Shorts and videos. Many other video sites work too, because the app is built on yt-dlp.'),
-    ('Does it work on Mac or phones?', 'Not yet. It is a Windows app for Windows 10 and 11.'),
-    ('Why does Windows show a blue warning when I install it?', 'Windows shows that warning for new apps that are not yet widely downloaded. Click More info, then Run anyway.'),
-    ('Can I download private posts?', 'No. The app does not log in to your accounts, so it only downloads posts anyone can see without logging in.'),
-    ('Where do the files go?', 'Into your Downloads folder, under Bulk Media Downloader, with one folder per batch. You can pick another folder in the app.'),
+    ('Does it work on Mac or phones?', 'The website works on any device with a browser, including iPhone and Android. The app is for Windows 10 and 11.'),
+    ('Why does Windows show a blue warning when I install the app?', 'Windows shows that warning for new apps that are not yet widely downloaded. Click More info, then Run anyway.'),
+    ('Can I download private posts?', 'No. Bulk Media Downloader never logs in to your accounts, so it only downloads posts anyone can see without logging in.'),
     ('Is it legal to download videos?', 'It depends on what you download and why. Downloading your own content, or content you have permission to use, is fine. Re-uploading other people\'s videos without permission is not. The sites\' own terms may also limit downloading. You are responsible for what you download.'),
 ])
 
@@ -215,17 +341,18 @@ def platform_page(slug, crumb, title, desc, h1, lead, copy_steps, details_html, 
     body = f"""
 <h1>{h1}</h1>
 <p class="lead">{lead}</p>
-{cta()}
+{TOOL}
+<p class="small" style="margin-top:12px">For up to 100 links at once and 4K, get the <a href="{DOWNLOAD}">free Windows app</a>.</p>
 <h2>How to download {crumb} in bulk</h2>
 <ol class="steps">
   <li><h3>Copy the links</h3>{copy_steps}</li>
-  <li><h3>Paste them in the app</h3>Open {NAME} and paste all the links at once. One per line, or a whole message: the app finds them.</li>
-  <li><h3>Download</h3>Choose the quality and press Download. Every file lands in one folder, and in one ZIP if you tick that box.</li>
+  <li><h3>Paste them above</h3>Paste all the links into the box at once. One per line, or a whole message: every link is found.</li>
+  <li><h3>Download</h3>Choose the quality and press Download. Then save one ZIP with everything, or each file on its own.</li>
 </ol>
 <div class="prose">{details_html}</div>
 <p class="note">Download only what you made or have permission to use. Posts that are private or need a login cannot be downloaded.</p>
 """
-    page(slug, title, desc, h1, body, faq=faq, crumb=crumb)
+    page(slug, title, desc, h1, body, faq=faq, crumb=crumb, tool=True)
 
 
 platform_page('/instagram-reels-downloader/', 'Instagram Reels',
@@ -319,8 +446,10 @@ page('/privacy/', 'Privacy | Bulk Media Downloader', 'Bulk Media Downloader coll
 <p>{NAME} runs on your computer. The links you paste and the files you download stay on your computer: the app downloads straight from the sites you link to, using your own internet connection. We do not run servers that receive your links or files.</p>
 <p>The app connects to the internet only to download the links you give it, to check for a newer version of its download engine (from PyPI, the Python package index), and to check whether a newer version of the app is out (from GitHub). These requests carry no information about you or your downloads.</p>
 <p>Settings and a small log file are kept in your user folder (%LOCALAPPDATA%\\Bulk Media Downloader). Uninstalling the app removes the program; you can delete that folder too.</p>
+<h2>Downloading on this website</h2>
+<p>When you press Download, the links you pasted are sent to our download server (hosted by Railway), which fetches the posts and prepares the files. The files and the ZIP are kept in Railway's storage for one hour and then deleted. Your IP address is used only in memory, to limit how many links one visitor can download per hour; it is not stored. We keep no record of what you downloaded.</p>
 <h2>This website</h2>
-<p>This website uses no cookies, no analytics and no ads. It is hosted on GitHub Pages; GitHub may log technical data such as IP addresses to run and protect its service. The download is served by GitHub.</p>
+<p>This website uses no cookies, no analytics and no ads. It is hosted on GitHub Pages; GitHub and Railway may log technical data such as IP addresses to run and protect their services. The Windows app download is served by GitHub.</p>
 </div>""", crumb='Privacy')
 
 page('/terms/', 'Terms | Bulk Media Downloader', 'The terms of use of Bulk Media Downloader, a free Windows app.',
