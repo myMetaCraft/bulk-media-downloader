@@ -1,0 +1,14 @@
+{
+ "engine": "2026.11.23",
+ "zip": "D:\\a\\bulk-media-downloader\\bulk-media-downloader\\build\\smoke\\2026-11-24 12-30.zip",
+ "items": [
+  {
+   "url": "http://127.0.0.1:8765/test.mp4",
+   "state": "done",
+   "error": "",
+   "files": [
+    "D:\\a\\bulk-media-downloader\\bulk-media-downloader\\build\\smoke\\2026-11-24 12-30\\unknown - test [test].mp4"
+   ]
+  }
+ ]
+}

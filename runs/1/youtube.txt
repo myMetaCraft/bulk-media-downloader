@@ -1,0 +1,13 @@
+failed: https://www.youtube.com/watch?v=jNQXAC9IVRw -> HTTP Error 404: Not Found
+{
+ "engine": "2026.11.23",
+ "zip": null,
+ "items": [
+  {
+   "url": "https://www.youtube.com/watch?v=jNQXAC9IVRw",
+   "state": "failed",
+   "error": "This post is not available: deleted, private, or blocked in your country.",
+   "files": []
+  }
+ ]
+}
