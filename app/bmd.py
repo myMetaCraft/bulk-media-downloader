@@ -259,6 +259,7 @@ def smoke(links):
 
 def main(argv):
     if '--smoke' in argv:
+        engine.VERBOSE = '--verbose' in argv
         return smoke([a for a in argv if a.startswith('http')])
     if sys.executable.lower().endswith('pythonw.exe') or '--log' in argv:
         _log_to_file()

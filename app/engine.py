@@ -230,24 +230,35 @@ def make_zip(folder):
 
 
 # ------------------------------------------------------------------ one link
+VERBOSE = False
+
+
 class _Log:
+    """yt-dlp's messages: errors and warnings are kept (a warning may be the only reason a post had nothing to download)."""
     def __init__(self, item):
         self.item = item
+        self.warnings = []
 
     def debug(self, msg):
-        pass
+        if VERBOSE:
+            print(msg, flush=True)
 
     def info(self, msg):
-        pass
+        if VERBOSE:
+            print(msg, flush=True)
 
     def warning(self, msg):
-        pass
+        self.warnings.append(str(msg))
+        if VERBOSE:
+            print('WARNING:', msg, flush=True)
 
     def error(self, msg):
         self.item['error'] = friendly(msg)
+        if VERBOSE:
+            print(msg, flush=True)
 
 
-def _options(quality, folder, item, done_files):
+def _options(quality, folder, item, done_files, log):
     def progress(d):
         if d.get('status') == 'downloading':
             total = d.get('total_bytes') or d.get('total_bytes_estimate') or 0
@@ -270,9 +281,9 @@ def _options(quality, folder, item, done_files):
         'windowsfilenames': True,
         'noplaylist': True,                 # a video link inside a playlist: only that video
         'playlist_items': '1:100',          # a playlist or a post with many slides: at most 100
-        'ignore_no_formats_error': True,    # photo slides have no video: we take their pictures ourselves
+        'ignore_no_formats_error': item['platform'] == 'instagram',    # Instagram photo slides have no video: we take their pictures ourselves
         'quiet': True, 'no_warnings': True, 'noprogress': True,
-        'logger': _Log(item),
+        'logger': log,
         'progress_hooks': [progress], 'postprocessor_hooks': [after],
         'retries': 3, 'fragment_retries': 3, 'concurrent_fragment_downloads': 4,
         'socket_timeout': 30,
@@ -307,8 +318,8 @@ def _entries(info):
 def _download(item, quality, folder):
     """Look first, then fetch: every video slide through yt-dlp, every photo slide as its full-size picture."""
     from yt_dlp import YoutubeDL
-    done, files, errors = [], [], []
-    with YoutubeDL(_options(quality, folder, item, done)) as ydl:
+    done, files, errors, log = [], [], [], _Log(item)
+    with YoutubeDL(_options(quality, folder, item, done, log)) as ydl:
         try:
             info = ydl.extract_info(item['url'], download=False)
         except Exception:
@@ -319,7 +330,8 @@ def _download(item, quality, folder):
             item['title'] = str(info['title'])[:140]
         entries = _entries(info)
         videos = [e for e in entries if e.get('url') or e.get('requested_formats')]
-        pictures = [e for e in entries if e not in videos and e.get('thumbnails')] if quality != 'audio' else []
+        pictures = ([e for e in entries if e not in videos and e.get('thumbnails')]           # photo posts and slides: Instagram only
+                    if quality != 'audio' and item['platform'] == 'instagram' else [])
         for e in videos:
             try:
                 before = len(done)
@@ -331,24 +343,34 @@ def _download(item, quality, folder):
         for k, e in enumerate(pictures, 1):
             try:
                 stem = os.path.splitext(ydl.prepare_filename(e))[0] + (f' {k}' if len(pictures) > 1 else '')
-                p = _save_picture(ydl, _best_picture(e), stem)
-                if p:
-                    files.append(p)
+                p = None
+                for url in _pictures(e):
+                    try:
+                        p = _save_picture(ydl, url, stem)
+                    except Exception as err:
+                        errors.append(err)
+                    if p:
+                        files.append(p)
+                        break
             except Exception as err:
                 errors.append(err)
         files = [p for p in files if os.path.isfile(p)]
         if not files and item['platform'] == 'tiktok' and _tiktok_photos(ydl, item, folder):
             return
         item['files'] = files
-        if not files and errors:
-            raise errors[0]
+        if not files:
+            reason = next((w for w in log.warnings if 'format' not in w.lower() or 'sign in' in w.lower()), None) or (log.warnings[-1] if log.warnings else None)
+            if errors:
+                raise errors[0]
+            if reason:
+                raise RuntimeError(reason)
 
 
-def _best_picture(entry):
+def _pictures(entry):
+    """The post's picture URLs, largest first (a large one can be missing; then the next one is tried)."""
     thumbs = [t for t in entry.get('thumbnails') or [] if t.get('url')]
-    if not thumbs:
-        return None
-    return max(thumbs, key=lambda t: ((t.get('width') or 0) * (t.get('height') or 0), t.get('preference') or 0))['url']
+    thumbs.sort(key=lambda t: ((t.get('width') or 0) * (t.get('height') or 0), t.get('preference') or 0), reverse=True)
+    return [t['url'] for t in thumbs[:4]]
 
 
 def _save_picture(ydl, url, stem):
