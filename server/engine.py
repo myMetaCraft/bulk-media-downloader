@@ -368,10 +368,24 @@ def _download(item, quality, folder):
                 raise RuntimeError(reason)
 
 
+def _picture_size(t):
+    """How big a picture is: its width x height when given, else read from Instagram's URL (stp=..._s640x640_...);
+    a URL with no size in it is the original, full-size picture. Cropped versions (c53.0.613.613a_...) come last."""
+    if t.get('width') and t.get('height'):
+        return t['width'] * t['height'], 1
+    from urllib.parse import urlparse, parse_qs
+    stp = ','.join(parse_qs(urlparse(t['url']).query).get('stp', []))
+    m = re.search(r'(?:^|_)[sp](\d+)x(\d+)(?:_|$)', stp)
+    cropped = 0 if re.search(r'(?:^|_)c[\d.]+a?(?:_|$)', stp) else 1
+    if m:
+        return int(m.group(1)) * int(m.group(2)), cropped
+    return (10 ** 9 if stp else 0), cropped
+
+
 def _pictures(entry):
     """The post's picture URLs, largest first (a large one can be missing; then the next one is tried)."""
     thumbs = [t for t in entry.get('thumbnails') or [] if t.get('url')]
-    thumbs.sort(key=lambda t: ((t.get('width') or 0) * (t.get('height') or 0), t.get('preference') or 0), reverse=True)
+    thumbs.sort(key=lambda t: (_picture_size(t)[1], _picture_size(t)[0], t.get('preference') or 0), reverse=True)
     return [t['url'] for t in thumbs[:4]]
 
 
