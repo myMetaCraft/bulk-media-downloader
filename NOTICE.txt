@@ -1,0 +1,15 @@
+Bulk Media Downloader
+https://bulkmediadownloader.com
+
+Download only content you created or have permission to use, and follow the terms of the sites you download from.
+Bulk Media Downloader is not affiliated with, endorsed by or sponsored by Instagram, Meta, TikTok, ByteDance, YouTube or Google.
+Those names are trademarks of their owners and are used only to say which links the app can read.
+
+This program includes:
+- Python (Python Software Foundation License) - https://www.python.org
+- yt-dlp (The Unlicense) - https://github.com/yt-dlp/yt-dlp
+- yt-dlp-ejs (The Unlicense) - https://github.com/yt-dlp/ejs
+- curl_cffi (MIT License) - https://github.com/lexiforest/curl_cffi
+- certifi, requests, urllib3, brotli, mutagen, pycryptodomex, websockets (their own open-source licenses)
+- FFmpeg (GPL; build from https://github.com/BtbN/FFmpeg-Builds, source at https://ffmpeg.org), license in bin\FFMPEG-LICENSE.txt
+- Deno (MIT License) - https://deno.com

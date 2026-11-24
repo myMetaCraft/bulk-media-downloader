@@ -1,0 +1,2 @@
+# yt-dlp with its usual helpers (yt-dlp-ejs for YouTube, certifi, brotli, ...) and curl_cffi, which Instagram needs for visitors who are not logged in
+yt-dlp[default,curl-cffi]

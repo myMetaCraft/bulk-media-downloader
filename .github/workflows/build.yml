@@ -1,0 +1,92 @@
+# Builds the Windows app (packaging/stage.ps1), checks it downloads a file, packs the installer with Inno Setup,
+# and publishes BulkMediaDownloader-Setup.exe as the latest release when VERSION is new.
+# Every run's log goes to the ci-logs branch (runs/<number>/).
+name: Windows app
+on:
+  push:
+    branches: [main]
+    paths: ['VERSION', 'app/**', 'packaging/**', 'requirements.txt', '.github/workflows/build.yml']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: windows-app
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 60
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PYTHONIOENCODING: utf-8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Stage the app
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force build\logs | Out-Null
+          try { & packaging\stage.ps1 *>&1 | Tee-Object -FilePath build\logs\stage.txt }
+          catch { "FAILED: $($_ | Out-String)" | Add-Content build\logs\stage.txt; Write-Host "::error title=stage::$($_.Exception.Message)"; throw }
+      - name: Download a test video with it (and a ZIP)
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force build\www | Out-Null
+          & build\BulkMediaDownloader\bin\ffmpeg.exe -v error -y -f lavfi -i testsrc=size=320x240:rate=25:duration=3 -f lavfi -i sine=frequency=440:duration=3 -c:v libx264 -pix_fmt yuv420p -c:a aac -shortest build\www\test.mp4
+          $srv = Start-Process python -ArgumentList '-m', 'http.server', '8765', '--bind', '127.0.0.1', '--directory', 'build\www' -PassThru -WindowStyle Hidden
+          Start-Sleep 3
+          & build\BulkMediaDownloader\python\python.exe app\bmd.py --smoke http://127.0.0.1:8765/test.mp4 *>&1 | Tee-Object -FilePath build\logs\smoke.txt
+          $code = $LASTEXITCODE
+          Stop-Process $srv -ErrorAction SilentlyContinue
+          if ($code -ne 0) { Write-Host "::error title=smoke::$((Get-Content build\logs\smoke.txt -Tail 15) -join ' | ')"; throw 'the test download failed' }
+      - name: Try a real YouTube video (for the log only; cloud addresses are often asked to sign in)
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          & build\BulkMediaDownloader\python\python.exe app\bmd.py --smoke https://www.youtube.com/watch?v=jNQXAC9IVRw *>&1 | Tee-Object -FilePath build\logs\youtube.txt
+      - name: Installer
+        shell: pwsh
+        run: |
+          $ver = (Get-Content VERSION -Raw).Trim()
+          $iscc = "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { choco install innosetup -y --no-progress | Out-Null }
+          & $iscc /Q "/DAppVersion=$ver" packaging\BulkMediaDownloader.iss *>&1 | Tee-Object -FilePath build\logs\installer.txt
+          if ($LASTEXITCODE -ne 0) { throw 'Inno Setup failed' }
+          Get-ChildItem build\installer | Format-Table Name, Length | Out-String | Tee-Object -FilePath build\logs\installer.txt -Append
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BulkMediaDownloader-Setup
+          path: build/installer/*.exe
+          retention-days: 14
+      - name: Public release (a new VERSION on main)
+        if: github.ref == 'refs/heads/main'
+        shell: pwsh
+        run: |
+          $ver = (Get-Content VERSION -Raw).Trim()
+          gh release view "v$ver" *> $null
+          if ($LASTEXITCODE -eq 0) { Write-Host "v$ver is already released"; exit 0 }
+          $exe = Get-ChildItem build\installer\*.exe | Select-Object -First 1
+          Copy-Item $exe.FullName build\installer\BulkMediaDownloader-Setup.exe
+          gh release create "v$ver" build\installer\BulkMediaDownloader-Setup.exe --latest --title "Bulk Media Downloader $ver" --notes "Bulk Media Downloader for Windows $ver. Download BulkMediaDownloader-Setup.exe and run it."
+          if ($LASTEXITCODE -ne 0) { throw 'release failed' }
+          "https://github.com/${{ github.repository }}/releases/latest/download/BulkMediaDownloader-Setup.exe" | Set-Content build\logs\download.txt
+      - name: Keep the log on the ci-logs branch
+        if: always()
+        shell: pwsh
+        run: |
+          git config user.name 'bmd-ci'
+          git config user.email 'ci@users.noreply.github.com'
+          $dir = "..\ci-logs"
+          git fetch origin ci-logs 2>$null
+          if ($LASTEXITCODE -eq 0) { git worktree add $dir FETCH_HEAD } else { git worktree add --orphan -b ci-logs $dir }
+          $run = "$dir\runs\${{ github.run_number }}"
+          New-Item -ItemType Directory -Force $run | Out-Null
+          if (Test-Path build\logs) { Copy-Item build\logs\* $run }
+          "commit ${{ github.sha }}`nref ${{ github.ref }}`nresult ${{ job.status }}" | Set-Content "$run\summary.txt"
+          Push-Location $dir
+          git add -A
+          git commit -q -m "logs of run ${{ github.run_number }} (${{ job.status }})"
+          git push -q origin HEAD:refs/heads/ci-logs
+          Pop-Location
